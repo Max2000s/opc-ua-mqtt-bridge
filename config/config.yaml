@@ -1,0 +1,32 @@
+opcua:
+  endpoint: "opc.tcp://localhost:4840"
+  securityPolicy: "None"
+  securityMode: "None"
+  # Add other OPC UA client settings as needed
+
+mqtt:
+  broker: "tcp://localhost:1883"
+  clientID: "your_client_id"
+  username: "your_username"
+  password: "your_password"
+  baseTopic: "your/base/topic"
+
+handlers:
+  - type: "ReadyBitHandler"
+    name: "Handler1"
+    parameters:
+      readyBitNodeID: "ns=2;s=ReadyBitNode1"
+      nodesToRead:
+        - "ns=2;s=DataNode1"
+        - "ns=2;s=DataNode2"
+        - "ns=2;s=DataNode3"
+      acknowledgementNodeID: "ns=2;s=AckNode1"
+  - type: "ReadyBitHandler"
+    name: "Handler2"
+    parameters:
+      readyBitNodeID: "ns=2;s=ReadyBitNode2"
+      nodesToRead:
+        - "ns=2;s=DataNodeA"
+        - "ns=2;s=DataNodeB"
+      acknowledgementNodeID: "ns=2;s=AckNode2"
+  # Add other handlers or types as needed
