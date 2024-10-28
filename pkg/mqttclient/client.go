@@ -1,8 +1,8 @@
 package mqttclient
 
 import (
+	"fmt"
 	"log"
-	"os"
 
 	"github.com/Max2000s/opc-ua-mqtt-bridge/pkg/config"
 
@@ -14,7 +14,7 @@ type MQTTClient struct {
 	Config config.MqttConfig
 }
 
-func NewMQTTClient(cfg config.MqttConfig) *MQTTClient {
+func NewMqttClient(cfg config.MqttConfig) (*MQTTClient, error) {
 	opts := mqtt.NewClientOptions().
 		AddBroker(cfg.Broker).
 		SetClientID(cfg.ClientID).
@@ -23,8 +23,7 @@ func NewMQTTClient(cfg config.MqttConfig) *MQTTClient {
 
 	client := mqtt.NewClient(opts)
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
-		log.Fatalf("Error connecting to MQTT broker: %v", token.Error())
-		os.Exit(1)
+		return nil, fmt.Errorf("error connecting to MQTT broker: %v", token.Error())
 	}
 
 	log.Printf("Connected to MQTT broker '%s'.", cfg.Broker)
@@ -32,7 +31,7 @@ func NewMQTTClient(cfg config.MqttConfig) *MQTTClient {
 	return &MQTTClient{
 		Client: client,
 		Config: cfg,
-	}
+	}, nil
 }
 
 func (mc *MQTTClient) Disconnect(quiesce uint) {
