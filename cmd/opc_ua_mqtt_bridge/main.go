@@ -9,7 +9,7 @@ import (
 
 func main() {
 
-	CONFIG_FILE := "config/config.ylaml"
+	CONFIG_FILE := "config/config.yaml"
 
 	log.Printf("Start reading config file %s", CONFIG_FILE)
 	appConfig, err := config.LoadConfig(CONFIG_FILE)
