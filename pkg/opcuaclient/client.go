@@ -1,6 +1,7 @@
 package opcuaclient
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/Max2000s/opc-ua-mqtt-bridge/pkg/config"
@@ -13,7 +14,7 @@ type OpcUaClient struct {
 }
 
 // NewClient creates a new OPC UA client with the given configuration
-func NewClient(config *config.OpcUaClientConfig) (*OpcUaClient, error) {
+func NewOpcUaClient(config *config.OpcUaClientConfig) (*OpcUaClient, error) {
 	// Create OPC UA client options
 	opts := []opcua.Option{
 		opcua.SecurityPolicy(config.SecurityPolicy),
@@ -46,4 +47,15 @@ func NewClient(config *config.OpcUaClientConfig) (*OpcUaClient, error) {
 		config: config,
 		client: opcuaClient,
 	}, nil
+}
+
+func (c *OpcUaClient) Connect(ctx context.Context) error {
+	if err := c.client.Connect(ctx); err != nil {
+		return fmt.Errorf("failed to connect to OPC UA server: %w", err)
+	}
+	return nil
+}
+
+func (c *OpcUaClient) Disconnect(ctx context.Context) error {
+	return c.client.Close(ctx)
 }
