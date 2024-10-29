@@ -3,8 +3,12 @@ package app
 import (
 	"context"
 	"log"
+	"os"
+	"os/signal"
+	"sync"
 
 	"github.com/Max2000s/opc-ua-mqtt-bridge/pkg/config"
+	"github.com/Max2000s/opc-ua-mqtt-bridge/pkg/handlers"
 	"github.com/Max2000s/opc-ua-mqtt-bridge/pkg/mqttclient"
 	"github.com/Max2000s/opc-ua-mqtt-bridge/pkg/opcuaclient"
 )
@@ -13,6 +17,7 @@ type App struct {
 	AppConfig   config.AppConfig
 	OpcUaClient *opcuaclient.OpcUaClient
 	MqttClient  *mqttclient.MQTTClient
+	Handlers    []handlers.Handler
 }
 
 func NewApp(appConfig config.AppConfig) *App {
@@ -41,9 +46,59 @@ func (app *App) Start() {
 	// connect to OPCUA
 	ctx := context.Background()
 	if err := app.OpcUaClient.Connect(ctx); err != nil {
-		log.Println("Failed to connect: %v\n", err)
-		return
+		log.Fatalf("Failed to connect: %s", err)
 	}
 
-	defer app.OpcUaClient.Disconnect(ctx)
+	// connect to MQTT
+
+	defer func() {
+		app.OpcUaClient.Disconnect(ctx)
+		app.MqttClient.Disconnect(ctx)
+	}()
+
+	var wg sync.WaitGroup
+
+	if err := app.InitializeHandlers(); err != nil {
+		log.Fatalf("Failed to initialize handlers: %s", err)
+	}
+
+	app.StartHandlers()
+
+	// Wait for an interrupt signal to gracefully shutdown
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	<-c
+
+	// Wait for all handlers to finish
+	wg.Wait()
+	log.Println("Application stopped")
+}
+
+func (app *App) InitializeHandlers() error {
+	for _, handlerCfg := range app.AppConfig.Handlers {
+		var handler handlers.Handler
+		var err error
+
+		switch handlerCfg.Type {
+		case "ReadyBitHandler":
+			handler, err = handlers.NewReadyBitHandler()
+		default:
+			log.Printf("Unknown handler type: %s", handlerCfg.Type)
+			continue
+		}
+
+		if err != nil {
+			log.Printf("Error while creaating handler type '%s': %s", handlerCfg.Type, err)
+			continue
+		}
+
+		app.Handlers = append(app.Handlers, handler)
+	}
+	return nil
+}
+
+func (app *App) StartHandlers() error {
+	// fill handler start here
+
+	return nil
 }

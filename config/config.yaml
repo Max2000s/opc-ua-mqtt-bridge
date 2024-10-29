@@ -16,11 +16,12 @@ handlers:
     name: "Handler1"
     parameters:
       readyBitNodeID: "ns=2;s=ReadyBitNode1"
+      acknowledgementNodeID: "ns=2;s=AckNode1"
       nodesToRead:
         - "ns=2;s=DataNode1"
         - "ns=2;s=DataNode2"
         - "ns=2;s=DataNode3"
-      acknowledgementNodeID: "ns=2;s=AckNode1"
+
   - type: "ReadyBitHandler"
     name: "Handler2"
     parameters:
