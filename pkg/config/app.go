@@ -1,9 +1,13 @@
 package config
 
 type AppConfig struct {
-	OpcUA    OpcUaClientConfig `yaml:"opcua_client"`
-	MQTT     MqttConfig        `yaml:"mqtt"`
-	Handlers []HandlerConfig   `yaml:"handlers"`
+	Clients  ClientsConfig   `yaml:"clients"`
+	Handlers []HandlerConfig `yaml:"handlers"`
+}
+
+type ClientsConfig struct {
+	OpcUA OpcUaClientConfig `yaml:"opcua_client"`
+	MQTT  MqttConfig        `yaml:"mqtt"`
 }
 
 type HandlerConfig struct {
