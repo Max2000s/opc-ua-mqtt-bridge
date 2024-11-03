@@ -1,11 +1,11 @@
 package handlers
 
+import (
+	"context"
+)
+
+// general interface description of a handler
 type Handler interface {
-}
-
-type ReadyBitHandler struct {
-}
-
-func NewReadyBitHandler() (*ReadyBitHandler, error) {
-	return nil, nil
+	Run(ctx context.Context) error
+	Name() string
 }
